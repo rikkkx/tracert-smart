@@ -3,6 +3,8 @@
 from argparse import ArgumentParser
 from sys import argv, exit
 import socket
+from whois_ip import addr_is_white, whois
+from table_formatter import TablePrinter
 
 
 PORT = 33434
@@ -54,7 +56,7 @@ def create_icmp_pack():
 def parse_icmp(packet):
     next_proto = packet[9]
     if next_proto != 1:
-        raise ValueError("Unknown Protocol")
+        raise UnexpectedProtocolException(next_proto)
     dest_addr = ".".join(str_iter(packet[12:16]))
     icmp_type = packet[20]
     icmp_code = packet[21]
@@ -66,21 +68,18 @@ def str_iter(iterable):
         yield str(e)
 
 
-def traceroute(dest, hops):
-    dest_address = socket.gethostbyname(dest)
-    yield 'Route to {} [{}] with {} hops max.'.format(dest, dest_address, hops)
-    ttl = 1
+def traceroute(dest_address, hops):
+    ttl = 0
+    addr = None
     while True:
-        answer = send_and_get(ttl, dest_address)
-        curr_host = '*'
-        if answer[0] is not None:
-            curr_host = '[{}] {}'.format(*answer)
-        yield "{}: {}".format(ttl, curr_host)
         ttl += 1
-        if hops < ttl:
+        if hops < ttl or dest_address == addr: 
             break
-        if dest_address == answer[0]:
-            break
+        addr, domain = send_and_get(ttl, dest_address)
+        netname, country, asn = None, None, None
+        if addr is not None and addr_is_white(addr):
+            netname, asn, country= whois(addr)
+        yield ttl, addr, domain, netname, country, asn
 
 
 def main():
@@ -89,7 +88,11 @@ def main():
         parser.print_help()
         exit(0)
     args = parser.parse_args(argv[1:])
-    for message in traceroute(args.destination, args.hops):
+    dest = socket.gethostbyname(args.destination)
+    print('Route to {} [{}] with {} hops max.'.format(args.destination, dest, args.hops))
+    table = TablePrinter("HOP:3|ADDRESS:15|DOMAIN:27|NETNAME:45|COUNTRY:2|ASN:7", False)
+    print(table.head)
+    for message in table.body(traceroute(dest, args.hops)):
         print(message)
 
 
