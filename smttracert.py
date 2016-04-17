@@ -4,13 +4,14 @@ from argparse import ArgumentParser
 from sys import argv, exit
 import socket
 
+
 PORT = 33434
 
 
 def init_parser():
     parser = ArgumentParser(prog="smttracert.py")
     parser.add_argument("destination", action='store', help="Destination address")
-    parser.add_argument("-m", '--max_hops', action='store', dest='hops', default=30, type=type(int),
+    parser.add_argument("-m", '--max_hops', action='store', dest='hops', default=30, type=int,
                         help="Maximum hops number. Default is undefined.")
     return parser
 
@@ -76,7 +77,7 @@ def traceroute(dest, hops):
             curr_host = '[{}] {}'.format(*answer)
         yield "{}: {}".format(ttl, curr_host)
         ttl += 1
-        if int(hops) < ttl:
+        if hops < ttl:
             break
         if dest_address == answer[0]:
             break

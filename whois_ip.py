@@ -5,17 +5,16 @@ from sys import argv, exit
 import socket
 
 
-SERVER = 'whois.verisign-grs.com'
+#  SERVERS = ['whois.arin.net', 'whois.apnic.net', 'whois.ripe.net', 'whois.afrinic.net', 'whois.lacnic.net']
 PORT = 43
-ADDR = (SERVER, PORT)
 
 
-def whois(dest_addr):
+def whois(dest_addr, whois_server="whois.iana.org"):
     sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
     sock.settimeout(3)
-    # dest_addr = socket.gethostbyname(dest_addr)
+
     try:
-        sock.connect(ADDR)
+        sock.connect((whois_server, PORT))
         sock.sendall(dest_addr.encode() + b'\r\n')
         while True:
             buf = sock.recv(1024)
@@ -23,9 +22,11 @@ def whois(dest_addr):
             if not buf:
                 break
     except socket.timeout:
-        pass
+        print("Server is unreachable.")
     except ConnectionRefusedError:
         print('Server is unreachable.')
+    finally:
+        sock.close()
 
 
 def main():
@@ -34,3 +35,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
