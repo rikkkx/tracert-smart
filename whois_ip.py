@@ -15,7 +15,10 @@ def whois(dest_addr, whois_server="whois.iana.org", all_msg=False):
     whois_msg = ""
     try:
         sock.connect((whois_server, 43))
-        sock.sendall(dest_addr.encode() + b'\r\n')
+        if whois_server == 'whois.arin.net':
+            sock.sendall(b'n ' + dest_addr.encode() + b'\r\n')
+        else:
+            sock.sendall(dest_addr.encode() + b'\r\n')
         while True:
             buf = sock.recv(1024)
             whois_msg += buf.decode()
@@ -31,13 +34,15 @@ def whois(dest_addr, whois_server="whois.iana.org", all_msg=False):
         p = re.compile(r"refer:\s*(.*)", re.I)
         next_serv = p.findall(whois_msg)
         if not next_serv:
-            return None
+            return None, None, None
         return whois(dest_addr, next_serv[0], all_msg)
     else:
         netname_p = re.compile(r"netname:\s*(.*)", re.I)
         netname = netname_p.findall(whois_msg)
         asn_p = re.compile(r"origin:\s*(.*)", re.I)
         asn = asn_p.findall(whois_msg)
+        if not asn:
+            re.compile(r'originas:\s*(.*)', re.I)
         country_p = re.compile(r"country:\s*(.*)", re.I)
         country = country_p.findall(whois_msg)
         if all_msg:

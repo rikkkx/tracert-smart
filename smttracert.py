@@ -90,7 +90,7 @@ def main():
     args = parser.parse_args(argv[1:])
     dest = socket.gethostbyname(args.destination)
     print('Route to {} [{}] with {} hops max.'.format(args.destination, dest, args.hops))
-    table = TablePrinter("HOP:3|ADDRESS:15|DOMAIN:27|NETNAME:45|COUNTRY:2|ASN:7", False)
+    table = TablePrinter("HOP:3|ADDRESS:15|DOMAIN:35|NETNAME:50|COUNTRY:2|ASN:7", False)
     print(table.head)
     for message in table.body(traceroute(dest, args.hops)):
         print(message)
