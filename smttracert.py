@@ -78,7 +78,7 @@ def traceroute(dest_address, hops):
         addr, domain = send_and_get(ttl, dest_address)
         netname, country, asn = None, None, None
         if addr is not None and addr_is_white(addr):
-            netname, asn, country= whois(addr)
+            netname, asn, country = whois(addr)
         yield ttl, addr, domain, netname, country, asn
 
 

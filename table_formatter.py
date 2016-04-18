@@ -12,10 +12,8 @@ class Align(Enum):
         if length <= len(word):
             return word
         i = (length - len(word)) // 2
-        word = (s * i) + word + (s * i)
-        if len(word) != length:
-            return word.ljust(length, s)
-        return word
+        word = (s * i) + word 
+        return word.ljust(length, s)
 
 
 class TablePrinter:

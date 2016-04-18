@@ -42,7 +42,8 @@ def whois(dest_addr, whois_server="whois.iana.org", all_msg=False):
         asn_p = re.compile(r"origin:\s*(.*)", re.I)
         asn = asn_p.findall(whois_msg)
         if not asn:
-            re.compile(r'originas:\s*(.*)', re.I)
+            ans_p = re.compile(r'originas:\s*(.*)', re.I)
+            asn = asn_p.findall(whois_msg)
         country_p = re.compile(r"country:\s*(.*)", re.I)
         country = country_p.findall(whois_msg)
         if all_msg:
